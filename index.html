@@ -100,27 +100,39 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        table {
-            width: 100%;
+         table {
+            width: 100%;        /* Fills the screen (good for 1 player) */
+            min-width: 0;       /* Removes the old 600px force */
             border-collapse: collapse;
-            min-width: 600px;
         }
 
         th, td {
-            padding: 12px 8px;
+            padding: 8px 2px;
             text-align: center;
             border-bottom: 1px solid #eee;
+            min-width: 70px; /* Each player gets at least 70px of space */
+            border-right: 1px solid #333; /* Uses a dark grey (almost black) line */
+        }
+
+        /* OPTIONAL: Removes the line from the very last column so it looks cleaner */
+        td:last-child, th:last-child {
+            border-right: none;
         }
 
         th {
             background-color: var(--light);
             color: var(--dark);
             position: sticky;
-            left: 0;
-            font-size: 1.2rem;
+            top: 0;
+            font-size: 1.2rem;   /* Smaller text (was 1.2rem) */
+            line-height: 1.1;     /* Tighter line spacing */
+            max-width: 120px;      /* FORCE the column to stay skinny */
+            white-space: nowrap;  /* Allows multi-line text */
+            vertical-align: bottom; /* Pushes text down near the scores */
+            padding: 10px 10px;   /* Adds 25px of space to left and right of names */
         }
 
-        /* 1. The Sticky "Hole" Column - Forced to be skinny */
+          /* 1. The Sticky "Hole" Column - Forced to be skinny */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
@@ -128,7 +140,7 @@
             font-weight: bold;
             border-right: 2px solid #ddd;
             z-index: 10;
-            
+            border-right: 4px solid #444; /* 4px thick and dark grey */
             /* SLIM WIDTH FIXES */
             width: 65px;       
             min-width: 65px;   
@@ -232,6 +244,7 @@
             gap: 10px; /* Space between the buttons */
             max-height: 60vh; /* Safety: allows scrolling if list is huge */
             overflow-y: auto;
+            padding-bottom: 80px; /* Creates space at the bottom of the scroll */
         }
 
         .word-item {
@@ -497,6 +510,3 @@
 
 </body>
 </html>
-
-
-
