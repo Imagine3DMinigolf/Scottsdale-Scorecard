@@ -262,6 +262,40 @@
             text-decoration: line-through;
             opacity: 0.45;
         }
+        
+        /* Winner Highlight Animation */
+.winner {
+    /* Pure, bright yellow. No gradient. No brown. */
+    background-color: #FFEB3B !important; 
+    
+    /* Black text provides the highest possible contrast */
+    color: #000000 !important;
+    
+    /* A thick black border makes it look like a construction/hazard sign (very distinct) */
+    border: 3px solid #000000;
+    
+    font-weight: 900; /* Extra bold text */
+    transform: scale(1.1); /* Pops out */
+    box-shadow: 0 0 15px rgba(255, 235, 59, 0.5); /* Yellow glow */
+    transition: all 0.3s ease;
+}
+
+        /* Google Review Button */
+        .btn-google {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 10px;    /* Compact padding */
+            border-radius: 8px;
+            flex: 1;
+            font-weight: bold;
+            text-decoration: none; /* Removes underline from link */
+            display: flex;         /* Centers text */
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        
     </style>
 </head>
 
@@ -307,6 +341,7 @@
         </div>
 
         <div class="controls">
+            <a href="https://share.google/0O2qzkCKN25aDYVO7" target="_blank" class="btn-google">Rate Us!? </a>
             <button class="btn-reset" onclick="resetGame()">Reset / New Game</button>
         </div>
     </div>
@@ -457,12 +492,60 @@
     function updateTotal(playerId) {
         let total = 0;
         for (let h = 1; h <= totalHoles; h++) {
-            total += Number(document.getElementById(`score-p${playerId}-h${h}`).value);
+            // Get the value from the box
+            const val = document.getElementById(`score-p${playerId}-h${h}`).value;
+            // Add to total (Number() turns empty text into 0 for math)
+            total += Number(val);
         }
         document.getElementById(`total-p${playerId}`).innerText = total;
+        
         saveData();
+        checkWinner(); // <--- NEW: This runs the check every time a number changes
     }
 
+function checkWinner() {
+        // 1. Check if ALL holes for ALL players are filled
+        let allFinished = true;
+        
+        players.forEach(p => {
+            for (let h = 1; h <= totalHoles; h++) {
+                if (document.getElementById(`score-p${p.id}-h${h}`).value === "") {
+                    allFinished = false;
+                }
+            }
+        });
+
+        // 2. CLEAN UP: Remove old trophies so we can do math
+        players.forEach(p => {
+            const cell = document.getElementById(`total-p${p.id}`);
+            cell.classList.remove("winner");
+            // Remove the trophy if it exists
+            cell.innerText = cell.innerText.replace(" 🏆", "");
+        });
+
+        // 3. If game is NOT done, stop here.
+        if (!allFinished) return;
+
+        // 4. Find the Lowest Score
+        const currentTotals = players.map(p => {
+            return { 
+                id: p.id, 
+                // Now that trophy is gone, this is a pure number again
+                score: Number(document.getElementById(`total-p${p.id}`).innerText) 
+            };
+        });
+
+        const minScore = Math.min(...currentTotals.map(t => t.score));
+
+        // 5. Award the Trophy
+        currentTotals.forEach(t => {
+            if (t.score === minScore) {
+                const winningCell = document.getElementById(`total-p${t.id}`);
+                winningCell.classList.add("winner"); 
+                winningCell.innerHTML += " 🏆";     // <--- Adds the icon!
+            }
+        });
+    }
     /* ====================== SAVE GAME ====================== */
     function saveData() {
         const scores = {};
@@ -510,3 +593,5 @@
 
 </body>
 </html>
+
+
