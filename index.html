@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Golf Scorecard</title>
+
+    <!-- ========================================================= -->
+    <!-- ======================   CSS STYLES   ===================== -->
+    <!-- ========================================================= -->
+
+    <style>
+       /* ---------------------- ROOT THEME COLORS ---------------------- */
+       :root {
+            --primary: #5ED669;
+            --accent:  #240046;
+            --highlight: #DE7121;
+
+            --bg-color: #240046;
+            --card-bg: #4a148c;
+            --text-color: #ffffff;
+            --border-color: #9c27b0;
+
+            --white: #ffffff;
+            --light: #f5f5f5;
+            --dark: #333333;
+            --gray: #eaeaea;
+       }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--gray);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+        p { margin: 5px 0 0; font-size: 0.8rem; opacity: 0.9; }
+
+         .container {
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            
+            /* ADD THIS LINE 👇 */
+            padding-bottom: 100px; 
+        }
+
+        /* Setup screen */
+        #setup-screen {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--dark); }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button.btn-main {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Scorecard */
+        #game-screen { display: none; }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--light);
+            color: var(--dark);
+            position: sticky;
+            left: 0;
+            font-size: 1.2rem;
+        }
+
+        td:first-child, th:first-child {
+            position: sticky;
+            left: 0;
+            background-color: var(--light);
+            font-weight: bold;
+            border-right: 2px solid #ddd;
+            z-index: 10;
+        }
+
+        input[type="number"] {
+            width: 40px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1.1rem;
+        }
+
+        .total-row {
+            background-color: var(--dark);
+            color: white;
+            font-weight: bold;
+        }
+        .total-row td:first-child {
+            background-color: var(--dark);
+            color: white;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-reset {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            flex: 1;
+            font-weight: bold;
+        }
+
+        /* ========================================================= */
+        /* ====================== WORD BANK UI ====================== */
+        /* ========================================================= */
+
+        /* Floating button */
+        #wordbank-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.1rem;
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            z-index: 200;
+        }
+
+/* Slide-up panel */
+        #wordbank-panel {
+            position: fixed;
+            bottom: 0;           /* Anchor it to the bottom line */
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.25);
+            border-radius: 12px 12px 0 0;
+            padding: 20px;
+            z-index: 199;
+            box-sizing: border-box;
+
+            /* THE FIX: Use transform instead of 'bottom' */
+            transform: translateY(100%); /* Moves it down 100% of its own height */
+            transition: transform 0.35s ease; /* Animate the move */
+        }
+
+        #wordbank-panel.open {
+            /* When open, move it back to original position */
+            transform: translateY(0%);
+        }
+
+        #wordbank-panel h3 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--dark);
+        }
+
+        /* NEW: Grid Container for the words */
+        #word-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two equal columns */
+            gap: 10px; /* Space between the buttons */
+            max-height: 60vh; /* Safety: allows scrolling if list is huge */
+            overflow-y: auto;
+        }
+
+        .word-item {
+            padding: 10px;
+            margin: 0; /* Margin removed (grid gap handles spacing now) */
+            background: var(--light);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center; /* Centers text in the grid box */
+        }
+
+        .word-item.found {
+            text-decoration: line-through;
+            opacity: 0.45;
+        }
+    </style>
+</head>
+
+
+<body>
+
+<header>
+    <h1>🦄 Imagine 3D Mini Golf Scorecard 🐉</h1>
+    <p>Thank you for supporting a local family owned business!</p>
+</header>
+
+<div class="container">
+
+    <!-- Setup Screen -->
+    <div id="setup-screen">
+        <h2>Who is playing? ⛳</h2>
+        <p style="margin-bottom: 15px; color: #666;">Leave blank if fewer than 6 players.</p>
+        
+        <div class="input-group"><input type="text" id="p1-name" placeholder="The Alien 👽"></div>
+        <div class="input-group"><input type="text" id="p2-name" placeholder="The Pirate 🏴‍☠️"></div>
+        <div class="input-group"><input type="text" id="p3-name" placeholder="The Unicorn 🦄"></div>
+        <div class="input-group"><input type="text" id="p4-name" placeholder="The Dragon 🐉"></div>
+        <div class="input-group"><input type="text" id="p5-name" placeholder="The Gnome 🍄"></div>
+        <div class="input-group"><input type="text" id="p6-name" placeholder="The Knight ⚔️"></div>
+
+        <button class="btn-main" onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- Scorecard -->
+    <div id="game-screen">
+        <div class="table-wrapper">
+            <table id="score-table">
+                <thead>
+                    <tr id="header-row"><th>Hole</th></tr>
+                </thead>
+
+                <tbody id="score-body"></tbody>
+
+                <tfoot>
+                    <tr class="total-row" id="total-row"><td>Total</td></tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="controls">
+            <button class="btn-reset" onclick="resetGame()">Reset / New Game</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Floating Word Bank Button -->
+<button id="wordbank-btn" onclick="toggleWordBank()">Word Bank</button>
+
+<!-- Slide-up Word Bank Panel -->
+<div id="wordbank-panel">
+    <h3>Scavenger Hunt Words</h3>
+    <div id="word-list"></div>
+</div>
+
+<!-- ========================================================= -->
+<!-- =====================   JAVASCRIPT   ===================== -->
+<!-- ========================================================= -->
+
+<script>
+    let players = [];
+    const totalHoles = 18;
+
+    /* ======================== WORD BANK DATA ======================== */
+    let wordList = [
+        "Armando",
+        "Andrade",
+        "Dane",
+        "Ruby",
+        "Che",
+        "Imagine",
+        "Todd",
+        "Eric",
+        "Alex",
+        "Taylor",
+        "Bobbi",
+        "Mom",
+        "Tessi",
+        "Amy",
+        "Jake",
+        "Evan",
+    ];
+
+    let foundWords = JSON.parse(localStorage.getItem("wordBankFound")) || {};
+
+    window.onload = function() {
+        loadWordBankUI();
+
+        const savedData = localStorage.getItem('miniGolfData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            players = data.players;
+            buildScorecard();
+            restoreScores(data.scores);
+            showGame();
+        }
+    };
+
+    /* ====================== WORD BANK UI BUILD ====================== */
+    function loadWordBankUI() {
+        const listDiv = document.getElementById("word-list");
+        listDiv.innerHTML = "";
+
+        wordList.forEach(word => {
+            const div = document.createElement("div");
+            div.className = "word-item";
+            if (foundWords[word]) div.classList.add("found");
+            div.innerText = word;
+
+            div.onclick = () => toggleWord(word, div);
+            listDiv.appendChild(div);
+        });
+    }
+
+    function toggleWord(word, element) {
+        foundWords[word] = !foundWords[word];
+        element.classList.toggle("found");
+
+        localStorage.setItem("wordBankFound", JSON.stringify(foundWords));
+    }
+
+    function toggleWordBank() {
+        document.getElementById("wordbank-panel").classList.toggle("open");
+    }
+
+    /* ====================== GAME SETUP ====================== */
+    function startGame() {
+        players = [];
+        
+        const characters = {
+            1: "👽", 2: "🏴‍☠️", 3: "🦄",
+            4: "🐉", 5: "🍄", 6: "⚔️"
+        };
+
+        for (let i = 1; i <= 6; i++) {
+            const name = document.getElementById(`p${i}-name`).value.trim();
+            if (name) {
+                players.push({ 
+                    id: i, 
+                    name: name, 
+                    icon: characters[i]
+                });
+            }
+        }
+
+        if (players.length === 0) {
+            alert("Please enter at least one player name.");
+            return;
+        }
+
+        buildScorecard();
+        showGame();
+        saveData();
+    }
+
+    function buildScorecard() {
+        const headerRow = document.getElementById('header-row');
+        const scoreBody = document.getElementById('score-body');
+        const totalRow = document.getElementById('total-row');
+
+        headerRow.innerHTML = '<th>Hole</th>';
+        scoreBody.innerHTML = '';
+        totalRow.innerHTML = '<td>Total</td>';
+
+        players.forEach(p => {
+            headerRow.innerHTML += `
+                <th>${p.name}
+                    <span style="font-size: 1.5rem; margin-left: 5px;">${p.icon}</span>
+                </th>`;
+            
+            totalRow.innerHTML += `<td id="total-p${p.id}">0</td>`;
+        });
+
+        for (let h = 1; h <= totalHoles; h++) {
+            let rowHtml = `<tr><td>${h}</td>`;
+            players.forEach(p => {
+                rowHtml += `
+                    <td><input type="number" min="1" max="20"
+                        id="score-p${p.id}-h${h}"
+                        oninput="updateTotal(${p.id})"></td>`;
+            });
+            rowHtml += `</tr>`;
+            scoreBody.innerHTML += rowHtml;
+        }
+    }
+
+    /* ====================== SCORING ====================== */
+    function updateTotal(playerId) {
+        let total = 0;
+        for (let h = 1; h <= totalHoles; h++) {
+            total += Number(document.getElementById(`score-p${playerId}-h${h}`).value);
+        }
+        document.getElementById(`total-p${playerId}`).innerText = total;
+        saveData();
+    }
+
+    /* ====================== SAVE GAME ====================== */
+    function saveData() {
+        const scores = {};
+        players.forEach(p => {
+            scores[p.id] = {};
+            for (let h = 1; h <= totalHoles; h++) {
+                scores[p.id][h] =
+                    document.getElementById(`score-p${p.id}-h${h}`).value;
+            }
+        });
+
+        localStorage.setItem(
+            'miniGolfData',
+            JSON.stringify({ players, scores })
+        );
+    }
+
+    /* ====================== RESTORE SCORES ====================== */
+    function restoreScores(scores) {
+        players.forEach(p => {
+            for (let h = 1; h <= totalHoles; h++) {
+                if (scores[p.id] && scores[p.id][h]) {
+                    document.getElementById(`score-p${p.id}-h${h}`).value =
+                        scores[p.id][h];
+                }
+            }
+            updateTotal(p.id);
+        });
+    }
+
+    /* ======================== UI ======================== */
+    function showGame() {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+    }
+
+    function resetGame() {
+        if(confirm("Are you sure? This will delete current scores and found words.")) {
+            localStorage.removeItem('miniGolfData');
+            localStorage.removeItem('wordBankFound');
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
+
