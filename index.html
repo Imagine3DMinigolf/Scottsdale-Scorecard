@@ -314,12 +314,12 @@
         <h2>Who is playing? ⛳</h2>
         <p style="margin-bottom: 15px; color: #666;">Leave blank if fewer than 6 players.</p>
         
-        <div class="input-group"><input type="text" id="p1-name" placeholder="The Alien 👽"></div>
-        <div class="input-group"><input type="text" id="p2-name" placeholder="The Pirate 🏴‍☠️"></div>
-        <div class="input-group"><input type="text" id="p3-name" placeholder="The Unicorn 🦄"></div>
-        <div class="input-group"><input type="text" id="p4-name" placeholder="The Dragon 🐉"></div>
-        <div class="input-group"><input type="text" id="p5-name" placeholder="The Gnome 🍄"></div>
-        <div class="input-group"><input type="text" id="p6-name" placeholder="The Knight ⚔️"></div>
+        <div class="input-group"><input type="text" id="p1-name" placeholder="The Knight ⛨"></div>
+        <div class="input-group"><input type="text" id="p2-name" placeholder="The Unicorn 🦄"></div>
+        <div class="input-group"><input type="text" id="p3-name" placeholder="The Dragon 🐲"></div>
+        <div class="input-group"><input type="text" id="p4-name" placeholder="The Dolphin 🐬"></div>
+        <div class="input-group"><input type="text" id="p5-name" placeholder="The Mermaid 🧜‍♀️"></div>
+        <div class="input-group"><input type="text" id="p6-name" placeholder="The Alien 👽"></div> 
 
         <button class="btn-main" onclick="startGame()">Start Game</button>
     </div>
@@ -432,8 +432,8 @@
         players = [];
         
         const characters = {
-            1: "👽", 2: "🏴‍☠️", 3: "🦄",
-            4: "🐉", 5: "🍄", 6: "⚔️"
+            1: "⛨", 2: "🦄", 3: "🐲",
+            4: "🐬", 5: "🧜‍♀️", 6: "👽"
         };
 
         for (let i = 1; i <= 6; i++) {
@@ -593,6 +593,7 @@ function checkWinner() {
 
 </body>
 </html>
+
 
 
 
